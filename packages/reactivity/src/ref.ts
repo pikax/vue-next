@@ -66,7 +66,24 @@ type BailTypes =
   | Set<any>
   | WeakMap<any, any>
   | WeakSet<any>
+// | number
+// | string
+// | bigint
 
+export type RefProperties<T> = ({
+  [K in keyof T]: T[K] extends Ref<T[K]> ? K : never
+})[keyof T]
+
+interface Test {
+  a: Ref<number>
+  b: {
+    a: Ref<number>
+    b: number
+  }
+  c: number
+}
+export const cx: UnwrapRef<Test> = {} as any
+// cx
 // Recursively unwraps nested value bindings.
 export type UnwrapRef<T> = {
   ref: T extends Ref<infer V> ? UnwrapRef<V> : T
@@ -78,8 +95,10 @@ export type UnwrapRef<T> = {
   : T extends Array<any>
     ? 'array'
     : T extends BailTypes
-      ? 'stop' // bail out on types that shouldn't be unwrapped
-      : T extends object ? 'object' : 'stop']
+      ? 'stop' // bail out on types that shouldn't be unwrapped // : T extends object ? 'object' : 'stop'
+      : RefProperties<T> extends never
+        ? 'stop'
+        : T extends object ? 'object' : 'stop']
 
 // only unwrap nested ref
 export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>

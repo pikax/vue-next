@@ -130,4 +130,14 @@ describe('reactivity/ref', () => {
     expect(dummyX).toBe(4)
     expect(dummyY).toBe(5)
   })
+
+  it('should work with generics', () => {
+    const use = <K>(defaultValue: K, transformData: (s: string) => K) => {
+      const r = ref(defaultValue)
+      r.value = transformData('')
+      return { r }
+    }
+
+    expect(use).toReturn()
+  })
 })
