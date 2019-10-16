@@ -2,7 +2,13 @@
   // Use the project's typescript version
   "typescript.tsdk": "node_modules/typescript/lib",
 
-  "cSpell.enabledLanguageIds": ["markdown", "plaintext", "text", "yml"],
+  "cSpell.enabledLanguageIds": [
+    "markdown",
+    "plaintext",
+    "text",
+    "typescript",
+    "yml"
+  ],
 
   // Use prettier to format typescript, javascript and JSON files
   "[typescript]": {
@@ -13,5 +19,12 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "cSpell.enabled": true,
+  "cSpell.language": "en,en-GB",
+  "cSpell.words": [
+    "Codegen",
+    "VNODE",
+    "codeframe"
+  ]
 }
