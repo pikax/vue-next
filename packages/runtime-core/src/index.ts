@@ -1,4 +1,4 @@
-// Public API ------------------------------------------------------------------
+// Core API ------------------------------------------------------------------
 
 export const version = __VERSION__
 export {
@@ -51,15 +51,11 @@ export { getCurrentInstance } from './component'
 
 // For raw render function users
 export { h } from './h'
-export {
-  createVNode,
-  cloneVNode,
-  mergeProps,
-  openBlock,
-  createBlock
-} from './vnode'
-// Internal Components
-export { Text, Comment, Fragment } from './vnode'
+// Advanced render function utilities
+export { createVNode, cloneVNode, mergeProps, isVNode } from './vnode'
+// VNode types
+export { Fragment, Text, Comment, Static } from './vnode'
+// Built-in components
 export { Teleport, TeleportProps } from './components/Teleport'
 export { Suspense, SuspenseProps } from './components/Suspense'
 export { KeepAlive, KeepAliveProps } from './components/KeepAlive'
@@ -67,10 +63,10 @@ export {
   BaseTransition,
   BaseTransitionProps
 } from './components/BaseTransition'
-
+// For using custom directives
+export { withDirectives } from './directives'
 // SFC CSS Modules
 export { useCSSModule } from './helpers/useCssModule'
-
 // SSR context
 export { useSSRContext, ssrContextKey } from './helpers/useSsrContext'
 
@@ -86,12 +82,36 @@ export {
   ErrorCodes
 } from './errorHandling'
 export {
+  resolveComponent,
+  resolveDirective,
+  resolveDynamicComponent
+} from './helpers/resolveAssets'
+// For integration with runtime compiler
+export { registerRuntimeCompiler } from './component'
+export {
   useTransitionState,
   resolveTransitionHooks,
   setTransitionHooks
 } from './components/BaseTransition'
 
 // Types -----------------------------------------------------------------------
+
+import { VNode } from './vnode'
+import { ComponentInternalInstance } from './component'
+
+// Augment Ref unwrap bail types.
+// Note: if updating this, also update `types/refBail.d.ts`.
+declare module '@vue/reactivity' {
+  export interface RefUnwrapBailTypes {
+    runtimeCoreBailTypes:
+      | VNode
+      | {
+          // directly bailing on ComponentPublicInstance results in recursion
+          // so we use this as a bail hint
+          $: ComponentInternalInstance
+        }
+  }
+}
 
 export {
   ReactiveEffect,
@@ -125,6 +145,7 @@ export {
 } from './apiCreateApp'
 export {
   VNode,
+  VNodeChild,
   VNodeTypes,
   VNodeProps,
   VNodeArrayChildren,
@@ -134,7 +155,6 @@ export {
   Component,
   FunctionalComponent,
   ComponentInternalInstance,
-  RenderFunction,
   SetupContext
 } from './component'
 export {
@@ -143,7 +163,8 @@ export {
   ComponentOptionsWithObjectProps,
   ComponentOptionsWithArrayProps,
   ComponentCustomOptions,
-  ComponentOptionsBase
+  ComponentOptionsBase,
+  RenderFunction
 } from './componentOptions'
 export {
   ComponentPublicInstance,
@@ -190,18 +211,14 @@ export { HMRRuntime } from './hmr'
 // For compiler generated code
 // should sync with '@vue/compiler-core/src/runtimeConstants.ts'
 export { withCtx } from './helpers/withRenderContext'
-export { withDirectives } from './directives'
-export {
-  resolveComponent,
-  resolveDirective,
-  resolveDynamicComponent
-} from './helpers/resolveAssets'
 export { renderList } from './helpers/renderList'
 export { toHandlers } from './helpers/toHandlers'
 export { renderSlot } from './helpers/renderSlot'
 export { createSlots } from './helpers/createSlots'
 export { pushScopeId, popScopeId, withScopeId } from './helpers/scopeId'
 export {
+  openBlock,
+  createBlock,
   setBlockTracking,
   createTextVNode,
   createCommentVNode,
@@ -221,8 +238,6 @@ const _toDisplayString = toDisplayString
 const _camelize = camelize
 export { _toDisplayString as toDisplayString, _camelize as camelize }
 
-// For integration with runtime compiler
-export { registerRuntimeCompiler } from './component'
 // For test-utils
 export { transformVNodeArgs } from './vnode'
 

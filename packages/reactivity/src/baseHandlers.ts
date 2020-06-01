@@ -1,4 +1,4 @@
-import { reactive, readonly, toRaw } from './reactive'
+import { reactive, readonly, toRaw, ReactiveFlags } from './reactive'
 import { TrackOpTypes, TriggerOpTypes } from './operations'
 import { track, trigger, ITERATE_KEY } from './effect'
 import { isObject, hasOwn, isSymbol, hasChanged, isArray } from '@vue/shared'
@@ -35,13 +35,21 @@ const arrayInstrumentations: Record<string, Function> = {}
 
 function createGetter(isReadonly = false, shallow = false) {
   return function get(target: object, key: string | symbol, receiver: object) {
+    if (key === ReactiveFlags.isReactive) {
+      return !isReadonly
+    } else if (key === ReactiveFlags.isReadonly) {
+      return isReadonly
+    } else if (key === ReactiveFlags.raw) {
+      return target
+    }
+
     const targetIsArray = isArray(target)
     if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
       return Reflect.get(arrayInstrumentations, key, receiver)
     }
     const res = Reflect.get(target, key, receiver)
 
-    if (isSymbol(key) && builtInSymbols.has(key)) {
+    if (isSymbol(key) && builtInSymbols.has(key) || key === '__proto__') {
       return res
     }
 

@@ -10,9 +10,14 @@ import { SourceMapConsumer, SourceMapGenerator, RawSourceMap } from 'source-map'
 import {
   transformAssetUrl,
   AssetURLOptions,
-  createAssetUrlTransformWithOptions
+  createAssetUrlTransformWithOptions,
+  AssetURLTagConfig,
+  normalizeOptions
 } from './templateTransformAssetUrl'
-import { transformSrcset } from './templateTransformSrcset'
+import {
+  transformSrcset,
+  createSrcsetTransformWithOptions
+} from './templateTransformSrcset'
 import { isObject } from '@vue/shared'
 import * as CompilerDOM from '@vue/compiler-dom'
 import * as CompilerSSR from '@vue/compiler-ssr'
@@ -40,8 +45,17 @@ export interface SFCTemplateCompileOptions {
   compilerOptions?: CompilerOptions
   preprocessLang?: string
   preprocessOptions?: any
+  /**
+   * In some cases, compiler-sfc may not be inside the project root (e.g. when
+   * linked or globally installed). In such cases a custom `require` can be
+   * passed to correctly resolve the preprocessors.
+   */
   preprocessCustomRequire?: (id: string) => any
-  transformAssetUrls?: AssetURLOptions | boolean
+  /**
+   * Configure what tags/attributes to trasnform into asset url imports,
+   * or disable the transform altogether with `false`.
+   */
+  transformAssetUrls?: AssetURLOptions | AssetURLTagConfig | boolean
 }
 
 function preprocess(
@@ -135,9 +149,10 @@ function doCompileTemplate({
 
   let nodeTransforms: NodeTransform[] = []
   if (isObject(transformAssetUrls)) {
+    const assetOptions = normalizeOptions(transformAssetUrls)
     nodeTransforms = [
-      createAssetUrlTransformWithOptions(transformAssetUrls),
-      transformSrcset
+      createAssetUrlTransformWithOptions(assetOptions),
+      createSrcsetTransformWithOptions(assetOptions)
     ]
   } else if (transformAssetUrls !== false) {
     nodeTransforms = [transformAssetUrl, transformSrcset]

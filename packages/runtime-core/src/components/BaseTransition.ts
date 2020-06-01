@@ -75,7 +75,7 @@ export interface TransitionState {
 
 export interface TransitionElement {
   // in persisted mode (e.g. v-show), the same element is toggled, so the
-  // pending enter/leave callbacks may need to cancalled if the state is toggled
+  // pending enter/leave callbacks may need to be cancelled if the state is toggled
   // before it finishes.
   _enterCb?: PendingCallback
   _leaveCb?: PendingCallback
@@ -99,6 +99,8 @@ export function useTransitionState(): TransitionState {
 
 const BaseTransitionImpl = {
   name: `BaseTransition`,
+
+  inheritRef: true,
 
   props: {
     mode: String,

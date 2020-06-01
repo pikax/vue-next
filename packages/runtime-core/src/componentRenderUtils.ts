@@ -113,11 +113,6 @@ export function renderComponentRoot(
         root.shapeFlag & ShapeFlags.COMPONENT
       ) {
         root = cloneVNode(root, fallthroughAttrs)
-        // If the child root node is a compiler optimized vnode, make sure it
-        // force update full props to account for the merged attrs.
-        if (root.dynamicChildren) {
-          root.patchFlag |= PatchFlags.FULL_PROPS
-        }
       } else if (__DEV__ && !accessedAttrs && root.type !== Comment) {
         const allAttrs = Object.keys(attrs)
         const eventAttrs: string[] = []
@@ -176,6 +171,10 @@ export function renderComponentRoot(
         )
       }
       root.transition = vnode.transition
+    }
+    // inherit ref
+    if (Component.inheritRef && vnode.ref != null) {
+      root.ref = vnode.ref
     }
 
     if (__DEV__ && setRoot) {
@@ -252,7 +251,7 @@ export function shouldUpdateComponent(
     __DEV__ &&
     (prevChildren || nextChildren) &&
     parentComponent &&
-    parentComponent.renderUpdated
+    parentComponent.hmrUpdated
   ) {
     return true
   }
